@@ -1,5 +1,7 @@
 import sqlite3
+import logging
 from getpass import getpass
+logger = logging.getLogger(__name__)
 
 def init_db():
     conn = sqlite3.connect('inventario.db')
@@ -31,11 +33,11 @@ def auth():
     print("\n--- INICIO DE SESIÓN ---")
     usuario = input("Usuario: ")
     contraseña = getpass("Contraseña: ")
-    
+
     c.execute("SELECT * FROM usuarios WHERE usuario = ? AND contraseña = ?", 
               (usuario, contraseña))
     resultado = c.fetchone()
-    
+
     conn.close()
     return resultado is not None
 
@@ -143,9 +145,11 @@ def get_productos():
     conn.close()
 
 if __name__ == "__main__":
+    logging.basicConfig(filename='inventario.log', level=logging.INFO)
     init_db()
     
     if auth():
+        logger.info('Se ha iniciado sesión')
         menu()
     else:
         print("\nUsuario o contraseña incorrectos.")
