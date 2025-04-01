@@ -1,6 +1,13 @@
 import sqlite3
 import logging
 from getpass import getpass
+
+logging.basicConfig(
+    filename='inventario.log',
+    level=logging.INFO,
+    format='%(asctime)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 logger = logging.getLogger(__name__)
 
 def init_db():
@@ -38,6 +45,8 @@ def auth():
               (usuario, contraseña))
     resultado = c.fetchone()
 
+    if resultado is not None:
+        logger.info(f'Ha iniciado sesión el usuario {usuario}')
     conn.close()
     return resultado is not None
 
@@ -73,10 +82,8 @@ def menu():
             print("2. Vender stock")
 
             opcion = input("\nSeleccione una opción: ")
-            if opcion == '1':
-                continue
-            elif opcion == '2':
-                continue
+            if opcion == '1' or opcion == '2':
+                update_stock(int(opcion))
             else:
                 print("Opción inválida, intente nuevamente.")
                 continue
@@ -104,6 +111,7 @@ def add_user():
     
     conn.commit()
     conn.close()
+    logger.info(f'Se registró el usuario {usuario}')
     print("\nUsuario registrado exitosamente!")
 
 def add_producto():
@@ -124,6 +132,7 @@ def add_producto():
     
     conn.commit()
     conn.close()
+    logger.info(f'Se añadió el producto {nombre} con SKU {c.lastrowid}')
     print("\nProducto agregado exitosamente!")
 
 def get_productos():
@@ -142,14 +151,36 @@ def get_productos():
         print(f"Categoría: {producto[5]}")
         print("-----------------------")
     
+    logger.info(f'Se consultaron los productos')
     conn.close()
+
+def update_stock(type):
+    conn = sqlite3.connect('inventario.db')
+    c = conn.cursor()
+    
+    print("\n--- ACTUALIZAR STOCK ---")
+    sku = int(input("SKU del producto: "))
+    
+    if type == 1:
+        cantidad = int(input("Cantidad a ingresar: "))
+        c.execute('''UPDATE productos SET cantidad = cantidad + ? WHERE sku = ?''', (cantidad, sku))
+        log_msg = f'Se añadieron {cantidad} unidades al producto SKU {sku}'
+
+    elif type == 2:
+        cantidad = int(input("Cantidad a vender: "))
+        c.execute('''UPDATE productos SET cantidad = cantidad - ? WHERE sku = ?''', (cantidad, sku))
+        log_msg = f'Se vendieron {cantidad} unidades del producto SKU {sku}'
+
+    conn.commit()
+    conn.close()
+    logger.info(log_msg)
+    print("\nStock actualizado!")
 
 if __name__ == "__main__":
     logging.basicConfig(filename='inventario.log', level=logging.INFO)
     init_db()
     
     if auth():
-        logger.info('Se ha iniciado sesión')
         menu()
     else:
         print("\nUsuario o contraseña incorrectos.")
