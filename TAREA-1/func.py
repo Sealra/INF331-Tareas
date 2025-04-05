@@ -1,3 +1,4 @@
+# --------------------------------------------------
 import sqlite3
 import logging
 from getpass import getpass
@@ -50,53 +51,7 @@ def auth():
     conn.close()
     return resultado is not None
 
-
-def menu():
-    while True:
-        print("\n----------------------\n")
-        print("1. Registrar usuario")
-        print("2. Agregar producto")
-        print("3. Ver todos los productos")
-        print("4. Actualizar producto")
-        print("5. Eliminar producto")
-        print("6. Actualizar stock")
-        print("7. Buscar productos")
-        print("8. Generar reporte")
-        print("9. Salir")
-        
-        opcion = input("\nSeleccione una opción: ")
-        
-        if opcion == '1':
-            add_user()
-        elif opcion == '2':
-            add_producto()
-        elif opcion == '3':
-            get_productos()
-        elif opcion == '4':
-            continue
-        elif opcion == '5':
-            continue
-        elif opcion == '6':
-            print("\n-------------------")
-            print("1. Ingresar stock")
-            print("2. Vender stock")
-
-            opcion = input("\nSeleccione una opción: ")
-            if opcion == '1' or opcion == '2':
-                update_stock(int(opcion))
-            else:
-                print("Opción inválida, intente nuevamente.")
-                continue
-        elif opcion == '7':
-            continue
-        elif opcion == '8':
-            continue
-        elif opcion == '9':
-            break
-        else:
-            print("Opción inválida, intente nuevamente.")
-
-# --------------------------------------------------
+# -----------------------------------------------------
 
 def add_user():
     conn = sqlite3.connect('inventario.db')
@@ -175,12 +130,3 @@ def update_stock(type):
     conn.close()
     logger.info(log_msg)
     print("\nStock actualizado!")
-
-if __name__ == "__main__":
-    logging.basicConfig(filename='inventario.log', level=logging.INFO)
-    init_db()
-    
-    if auth():
-        menu()
-    else:
-        print("\nUsuario o contraseña incorrectos.")
